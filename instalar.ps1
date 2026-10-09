@@ -69,7 +69,7 @@ function Linha($pai, $y, $item, $titulo, $situacao, $corSituacao, $travada) {
 
 $form = New-Object Windows.Forms.Form
 $form.Text = 'Estante · instalação' + $(if ($Simular) { ' (simulação)' } else { '' }); $form.ClientSize = New-Object Drawing.Size(720, 470); $form.StartPosition = 'CenterScreen'
-if (Test-Path 'desktopuild\icon.ico') { $form.Icon = New-Object Drawing.Icon (Join-Path $PSScriptRoot 'desktopuild\icon.ico') }
+if (Test-Path 'desktop\build\icon.ico') { $form.Icon = New-Object Drawing.Icon (Join-Path $PSScriptRoot 'desktop\build\icon.ico') }
 $form.FormBorderStyle = 'FixedDialog'; $form.MaximizeBox = $false; $form.BackColor = $C.fundo; $form.ForeColor = $C.texto; $form.Font = Fonte 10
 [void](Texto $form 'E S T A N T E' 28 22 400 30 (Fonte 15 'Regular' 'Georgia'))
 $passo = Texto $form '' 28 56 660 20 (Fonte 9) $C.apagado
