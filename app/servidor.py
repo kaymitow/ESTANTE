@@ -7,7 +7,7 @@ Camada fina sobre as ferramentas/ que já existem. Regras do projeto, aplicadas 
 - toda gravação vira um commit no git (histórico e "desfazer");
 - fonte/ nunca é alterada por esta API.
 """
-import json, re, subprocess, sys, threading, time, urllib.request, uuid
+import json, re, subprocess, sys, threading, time, uuid
 from pathlib import Path
 
 import uvicorn
@@ -18,7 +18,7 @@ from pydantic import BaseModel
 
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ / 'ferramentas'))
-from buscar import sem_acento, unidades, limpa   # noqa: E402
+from buscar import sem_acento, unidades   # noqa: E402
 
 PY = sys.executable
 app = FastAPI(title='Estante')

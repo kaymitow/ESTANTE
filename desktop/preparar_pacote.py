@@ -21,13 +21,8 @@ VENV_PY = RAIZ / '.venv' / 'Scripts' / 'python.exe'
 # dependências que o app usa de fato (o freeze do .venv tem sobras de testes com PyInstaller e pywebview)
 SOBRAS = {'pip', 'setuptools', 'altgraph', 'pefile', 'pyinstaller-hooks-contrib', 'bottle', 'proxy_tools', 'pythonnet', 'clr_loader', 'pywin32-ctypes'}
 
-# llama.cpp (release b11514, do GitHub oficial): o motor de IA. CUDA 12.4 para placa NVIDIA (com as DLLs de CUDA) e CPU de reserva.
-LLAMA_URL = 'https://github.com/ggml-org/llama.cpp/releases/download/b11514/'
-LLAMA = [
-    ('llama-b11514-bin-win-cuda-12.4-x64.zip', '2f71ffab0ee2f7493abe8d30b403fe2728d8a3c97bbb2baf85c7c222a94454fe', 'cuda'),
-    ('cudart-llama-bin-win-cuda-12.4-x64.zip', '8c79a9b226de4b3cacfd1f83d24f962d0773be79f1e7b75c6af4ded7e32ae1d6', 'cuda'),
-    ('llama-b11514-bin-win-cpu-x64.zip', '5a1d6ba1b414ab0234b12e29d911b3b8fe63051b4455215e184cf74870eac596', 'cpu'),
-]
+sys.path.insert(0, str(RAIZ / 'app'))
+from motor import LLAMA, LLAMA_URL      # noqa: E402  (uma lista só: a mesma que o instalador baixa)
 
 PTH = 'python312.zip\n.\n..\\app\n..\\ferramentas\nLib\\site-packages\nimport site\n'
 

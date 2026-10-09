@@ -35,7 +35,7 @@ def catalogo():
     c = config.le()
     papeis = c['papeis']
     em_uso = {p: (papeis.get(p) or duplo.padrao(p, nomes)) for p in PAPEIS}
-    erro = '' if motor._binario().is_file() else 'o motor de IA (llama.cpp) não está em ferramentas/llama; rode o preparo do programa'
+    erro = '' if motor._binario().is_file() else 'o motor de IA (llama.cpp) não está em ferramentas/llama; rode o instalar.bat de novo, que ele baixa'
     return {'catalogo': cat, 'instalados': inst, 'papeis': papeis, 'em_uso': em_uso, 'placa': placa, 'baixando': BAIXANDO, 'erro': erro,
             'pasta': str(motor.PASTA), 'proprios': c.get('modelos_proprios') or {}, 'carregado': motor.carregado(),
             'fora': c['rede']['fora_modelo'] if c['rede']['modelo_fora'] and c['rede']['fora_url'] else ''}

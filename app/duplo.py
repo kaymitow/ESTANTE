@@ -8,7 +8,7 @@ Fluxo por item (tradução, atualização de português, limpeza de OCR, leitura
   5. Status final: "aprovado" (tudo limpo), "revisar" (alguma checagem falhou ou os dois seguem discordando).
 Nada é gravado aqui: o resultado vai para a fila de revisão e só o usuário aceita.
 """
-import base64, json, math, os, re, sys, threading, time, unicodedata, urllib.request
+import json, math, re, sys, threading, time, unicodedata, urllib.request
 from pathlib import Path
 from collections import Counter
 from difflib import SequenceMatcher
@@ -654,7 +654,7 @@ def _sistema(tarefa, contexto=''):
 
 def _local(tarefa):
     """Modelo local para o papel de proponente (ignora a escolha 'fora')."""
-    return padrao('tradutor' if tarefa.startswith('traduzir') else 'geral', tem)
+    return padrao('tradutor' if tarefa.startswith('traduzir') else 'geral', motor.nomes())
 
 
 def grande(menos=''):

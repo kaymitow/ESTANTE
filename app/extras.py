@@ -34,7 +34,7 @@ def commit(msg, *paths):
     git('add', *[str(p) for p in paths])
     # sem nome configurado no git da máquina, o commit falharia: usa um nome local genérico
     quem = [] if git('config', 'user.name').stdout.strip() else ['-c', 'user.name=Estante', '-c', 'user.email=estante@localhost']
-    return git(*quem, 'commit', '-q', '-m', msg)
+    return git(*quem, 'commit', '-q', '-m', msg, '--', *[str(p) for p in paths])      # só estes caminhos: o que mais estiver preparado no git não entra junto
 
 
 def slug(s):

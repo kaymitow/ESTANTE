@@ -15,3 +15,10 @@ ferramentas/epubcheck-*/
 ferramentas/tessdata/
 ferramentas/bin/
 ferramentas/classico/
+ferramentas/llama/
+# programa de janela própria (Electron): dependências e a saída do empacotamento
+desktop/node_modules/
+desktop/dist/
+desktop/cache/
+desktop/pacote/
+desktop/requisitos-*.txt

@@ -52,9 +52,11 @@ Na RTX 3060, com a dupla padrão (tradução e auditoria), o fluxo completo levo
 
 ### Para usar
 
-1. Baixe o `Estante Setup 1.0.0.exe` na página de [Releases](https://github.com/kaymitow/Estante/releases).
-2. Execute o instalador. O Windows vai avisar que o editor não é verificado, porque o instalador não tem assinatura digital. Clique em **Mais informações** e depois em **Executar assim mesmo**.
-3. Ao abrir o app pela primeira vez, vá em **Modelos** e escolha quais modelos baixar. Os padrões já vêm marcados.
+1. Nesta página, clique em **Code** e depois em **Download ZIP**. Extraia a pasta onde quiser (ela é o programa: não apague depois).
+2. Abra a pasta e dê dois cliques em `instalar.bat`. O instalador mostra o que falta no computador (Python, Git, Pandoc), instala pelo winget do próprio Windows, baixa o motor de IA (llama.cpp) e cria o atalho **Estante** na área de trabalho.
+3. O app abre numa janela própria. Vá em **Modelos** e baixe os modelos; os três padrões somam cerca de 13 GB.
+
+Se o instalador disser que algum passo não terminou, feche e abra o `instalar.bat` de novo: ele continua de onde parou.
 
 ### Para desenvolver (a partir do código)
 
@@ -63,7 +65,7 @@ Requisitos: Windows, Python 3.12, Git e Node.js 20 ou mais novo.
 ```bash
 git clone https://github.com/kaymitow/Estante.git
 cd Estante
-instalar.bat        # instala o que faltar, prepara o app e o abre (também cria o atalho na área de trabalho)
+instalar.bat        # instala o que faltar, baixa o motor de IA, cria o atalho e abre o app
 ```
 
 Para compilar a interface: `cd app/ui`, depois `npm install` e `npx vite build`.

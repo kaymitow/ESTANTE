@@ -42,6 +42,7 @@ $catalogo = Get-Content -Raw -Encoding UTF8 'app\modelos.json' | ConvertFrom-Jso
 foreach ($m in $modelos) {
     $c = $catalogo | Where-Object { $_.nome -eq $m.nome } | Select-Object -First 1
     $arqs = @($c.arquivo) + @($c.mmproj.arquivo) | Where-Object { $_ }
+    if ($c) { $m.gb = [double]$c.gb }      # o tamanho de verdade é o do catálogo do app
     $m.tem = [bool]$c -and -not ($arqs | Where-Object { -not (Test-Path (Join-Path $pastaModelos $_)) })
 }
 $temWinget = Tem 'winget'
@@ -143,6 +144,10 @@ function MontaPassos {
         [void]$passos.Add(@{ nome = 'Criando o ambiente do app'; exe = 'python'; arg = '-m venv .venv' })
         [void]$passos.Add(@{ nome = 'Instalando as bibliotecas do app'; exe = '.venv\Scripts\python.exe'; arg = '-m pip install -q --disable-pip-version-check -r requirements.txt' })
     }
+    # o motor de IA (llama.cpp) é baixado do GitHub oficial pelo próprio app, conferindo o hash; com placa NVIDIA vem também a versão de CUDA (uns 700 MB)
+    if (-not (Test-Path 'ferramentas\llama\cpu\llama-server.exe') -or ((Tem 'nvidia-smi') -and -not (Test-Path 'ferramentas\llama\cuda\llama-server.exe'))) {
+        [void]$passos.Add(@{ nome = 'Baixando o motor de IA (llama.cpp)'; exe = '.venv\Scripts\python.exe'; arg = 'app\motor.py --preparar' })
+    }
     # o Tectonic não está no winget: o próprio app baixa o executável (conferindo o hash) e guarda os pacotes de que os livros precisam
     foreach ($p in $programas) { if ($p.proprio -and $p.caixa.Checked -and -not $p.tem) { [void]$passos.Add(@{ nome = 'Baixando o Tectonic e os pacotes de PDF'; exe = '.venv\Scripts\python.exe'; arg = 'ferramentas\construir.py --preparar-tectonic' }) } }
 }
@@ -177,7 +182,7 @@ function Termina {
     if (-not $Simular -and -not $Teste -and $temApp) {
         # o atalho e a abertura são o fim da instalação: o app fica pronto para abrir com dois cliques
         $atalho = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Estante.lnk'
-        $s = (New-Object -ComObject WScript.Shell).CreateShortcut($atalho); $s.TargetPath = Join-Path $PSScriptRoot 'iniciar-app.bat'; $s.WorkingDirectory = $raiz; $s.WindowStyle = 7
+        $s = (New-Object -ComObject WScript.Shell).CreateShortcut($atalho); $s.TargetPath = Join-Path $raiz '.venv\Scripts\pythonw.exe'; $s.Arguments = 'appbrir.py'; $s.WorkingDirectory = $raiz      # direto no pythonw: sem janela de terminal
         $s.IconLocation = Join-Path $raiz 'desktop\build\icon.ico'; $s.Description = 'Estante'; $s.Save()
     }
     if ($falhas.Count) {
@@ -186,7 +191,7 @@ function Termina {
             "`n`nO mais comum é o Windows só enxergar um programa recém-instalado numa janela nova. Feche esta janela e abra o instalar.bat de novo: ele continua de onde parou e pula o que já está pronto."
     } else {
         $fim.Text = $(if ($Simular) { 'Simulação concluída: nada foi instalado.' } else { 'O Estante está pronto.' })
-        $fimDetalhe.Text = "O app abre agora no seu navegador. Depois, use o atalho 'Estante' na área de trabalho.`n`nO app roda só neste computador. Para começar, solte um PDF ou EPUB na pasta livros, ou use o botão Novo livro."
+        $fimDetalhe.Text = "O app abre agora, numa janela própria. Depois, use o atalho 'Estante' na área de trabalho.`n`nO app roda só neste computador. Para começar, solte um PDF ou EPUB na pasta livros, ou use o botão Novo livro."
         if (-not $Simular -and $temApp) { Start-Process (Join-Path $PSScriptRoot 'iniciar-app.bat') -WindowStyle Minimized }
     }
     Mostra 4

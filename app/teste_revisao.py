@@ -75,9 +75,10 @@ try:
 
     # livros de verdade: o pipeline recusa
     for real in sorted(d.name for d in (RAIZ / 'livros').iterdir() if d.is_dir() and not d.name.startswith(('zz-', '.')) and d.name != livro):
+        if not req(f'/api/pipeline/{real}')[1].get('impedimento'):      # livro ainda sem texto pronto: iniciar aqui o poria para processar de verdade
+            continue
         c, r = req(f'/api/pipeline/{real}/iniciar', {})
         assert c == 400, (real, c, r)
-        assert req(f'/api/pipeline/{real}')[1]['impedimento']
     assert req(f'/api/pipeline/{livro}')[1]['rascunho'] == {'total': 5, 'aceitos': 4, 'revisar': 0, 'juiz': 0}
     print('ok')
 finally:
