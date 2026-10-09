@@ -1,0 +1,51 @@
+@import './lib/tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--fundo); color: var(--papel); font-family: var(--ui); font-size: calc(16px * var(--escala)); -webkit-font-smoothing: antialiased; }
+body { margin: 0; min-height: 100vh; font-size: var(--t-ui); line-height: 1.5; font-variant-numeric: tabular-nums; }
+::selection { background: var(--acento); color: var(--sobre-acento); }
+
+h1, h2, h3 { font-family: var(--display); font-weight: 500; text-transform: var(--caixa-titulos); margin: 0; line-height: 0.95; letter-spacing: 0.005em; }
+h1 { font-size: var(--t-h1); }
+h2 { font-size: var(--t-h2); }
+h3 { font-size: var(--t-h3); line-height: 1.1; }
+p { margin: 0; }
+a { color: inherit; }
+
+/* micro-rótulo em caixa-alta espaçada (Edolus) */
+.rotulo { font-family: var(--mono); font-size: var(--t-rotulo); text-transform: uppercase; letter-spacing: 0.22em; color: var(--apagado); }
+.leitura { font-family: var(--leitura); font-weight: 400; font-size: var(--t-leitura); line-height: 1.7; max-width: 68ch; }
+
+:focus-visible { outline: 1px solid var(--acento); outline-offset: 3px; }
+button { font: inherit; color: inherit; }
+
+/* barra de rolagem discreta */
+* { scrollbar-width: thin; scrollbar-color: var(--linha-forte) transparent; }
+
+/* campos de formulário (base comum; as telas só ajustam largura) */
+input, select, textarea { font: inherit; color: var(--papel); background: var(--fundo); border: 1px solid var(--linha-forte); border-radius: var(--raio); padding: var(--e2) var(--e3); min-width: 0; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; border-color: var(--acento); }
+input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--apagado) 75%, transparent); }
+/* o botão nativo de escolher arquivo, com a cara dos botões do app */
+input[type='file'] { border: 0; padding: 0; background: none; width: 28rem; max-width: 100%; color: var(--apagado); }
+input[type='file']::file-selector-button { font-family: var(--mono); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--papel); background: transparent;
+  border: 1px solid var(--papel); border-radius: var(--raio); padding: var(--e3) var(--e6); margin-right: var(--e4); cursor: pointer; transition: background var(--medio) var(--curva), color var(--medio) var(--curva); }
+input[type='file']::file-selector-button:hover { background: var(--papel); color: var(--fundo); }
+input[type='file']:focus-visible { outline: 1px solid var(--acento); outline-offset: 3px; }
+/* títulos sem viúva; texto corrido sem linha órfã; janela modal não arrasta a página junto */
+h1, h2, h3 { text-wrap: balance; } p { text-wrap: pretty; } dialog { overscroll-behavior: contain; }
+/* cabeçalho padrão das telas internas */
+.topo-tela { padding-bottom: var(--e8); border-bottom: 1px solid var(--linha); display: grid; gap: var(--e3); }
+.topo-tela .volta { text-decoration: none; justify-self: start; } .topo-tela .volta:hover { color: var(--papel); }
+.topo-tela .sub { color: var(--apagado); max-width: 62ch; }
+.elo { font-family: var(--mono); font-size: var(--t-rotulo); text-transform: uppercase; letter-spacing: 0.22em; text-decoration: none; color: var(--papel); border-bottom: 1px solid var(--acento); padding-bottom: 2px; }
+.elo:hover { color: var(--acento); }
+
+/* escolha entre duas ou três opções (Aparência, modo de acompanhar o trabalho) */
+.segmento { width: fit-content; display: inline-flex; border: 1px solid var(--linha-forte); border-radius: var(--raio); overflow: hidden; }
+.segmento button { all: unset; cursor: pointer; padding: var(--e2) var(--e4); font-family: var(--mono); font-size: var(--t-rotulo); letter-spacing: 0.12em; text-transform: uppercase; color: var(--apagado); transition: background var(--medio) var(--curva), color var(--medio) var(--curva); }
+.segmento button + button { border-left: 1px solid var(--linha-forte); }
+.segmento button:hover { color: var(--papel); } .segmento button.on { background: var(--papel); color: var(--fundo); }
+.segmento button:focus-visible { outline: 1px solid var(--acento); outline-offset: -3px; }
+/* link em forma de botão */
+button.elo { cursor: pointer; background: none; border-width: 0 0 1px; padding: 0 0 2px; }

@@ -1,0 +1,58 @@
+{
+  "name": "estante",
+  "productName": "Estante",
+  "version": "1.0.0",
+  "description": "Estante: arquivo de leitura local e privado",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pacote": "python preparar_pacote.py && electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "44.4.2",
+    "electron-builder": "26.16.1"
+  },
+  "build": {
+    "appId": "com.kaymitow.estante",
+    "productName": "Estante",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json",
+      "build/icon.png"
+    ],
+    "extraResources": [
+      {
+        "from": "pacote",
+        "to": ".",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Estante",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "installerHeader": "build/header.bmp",
+      "installerSidebar": "build/sidebar.bmp",
+      "uninstallerSidebar": "build/sidebar.bmp"
+    }
+  }
+}

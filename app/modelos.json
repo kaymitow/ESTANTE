@@ -1,0 +1,73 @@
+[
+ {
+  "nome": "translategemma:12b",
+  "gb": 7.3,
+  "papeis": ["tradutor"],
+  "repo": "mradermacher/translategemma-12b-it-GGUF",
+  "remoto": "translategemma-12b-it.Q4_K_M.gguf",
+  "arquivo": "translategemma-12b-it.Q4_K_M.gguf",
+  "sha256": "b7aac4b4be7ab0c49b6556c29c4467e74313df7f1e95d9f9676bb2adf0afa528",
+  "mmproj": null,
+  "conversa": "translategemma.jinja",
+  "amostragem": {"top_k": 64, "top_p": 0.95},
+  "nota": "Feito só para traduzir. Medido aqui: mesma fidelidade da dupla grande, 2,4 vezes mais rápido.",
+  "licenca": "Gemma (Google)",
+  "medido": true
+ },
+ {
+  "nome": "qwen3-vl:8b-instruct",
+  "gb": 5.0,
+  "papeis": ["auditor", "leitor", "geral"],
+  "repo": "unsloth/Qwen3-VL-8B-Instruct-GGUF",
+  "remoto": "Qwen3-VL-8B-Instruct-Q4_K_M.gguf",
+  "arquivo": "Qwen3-VL-8B-Instruct-Q4_K_M.gguf",
+  "sha256": "108e7ff92b78eefd3db4741885104acba514255c11b617d3c7b197a5f46efe89",
+  "mmproj": {"remoto": "mmproj-F16.gguf", "arquivo": "Qwen3-VL-8B-Instruct-mmproj-F16.gguf", "sha256": "d406d03ebabefdef86a2c86bf0c1b65f9e046f7a81c218f25de4931b46a07fc4", "gb": 1.16},
+  "amostragem": {"top_k": 20, "top_p": 0.95},
+  "nota": "Lê páginas escaneadas e audita. Medido aqui: empatou com o de 30B em leitura de página, alemão e português antigo.",
+  "licenca": "Apache 2.0",
+  "medido": true
+ },
+ {
+  "nome": "glm-ocr:latest",
+  "gb": 0.95,
+  "papeis": ["leitor2"],
+  "repo": "ggml-org/GLM-OCR-GGUF",
+  "remoto": "GLM-OCR-Q8_0.gguf",
+  "arquivo": "GLM-OCR-Q8_0.gguf",
+  "sha256": "45bc244a6446aff850521dc41f18bc8d7105ad5f0c2c8c28af04e7cc4f4d50b1",
+  "mmproj": {"remoto": "mmproj-GLM-OCR-Q8_0.gguf", "arquivo": "GLM-OCR-mmproj-Q8_0.gguf", "sha256": "9c4b58e33e316ed142eb5dcb41abec3844d3e6e5dc361ffb782c3fa9d175141f", "gb": 0.48},
+  "amostragem": {},
+  "nota": "Leitor dedicado de páginas escaneadas, pequeno e rápido (5 segundos por página). Serve de segundo leitor, para conferir a leitura do primeiro: com os dois instalados, cada página é lida por dois modelos diferentes. Não use como leitor principal: às vezes moderniza a grafia por conta própria.",
+  "licenca": "ver a página do modelo",
+  "medido": true
+ },
+ {
+  "nome": "gemma4:26b",
+  "gb": 16.95,
+  "papeis": ["auditor", "leitor"],
+  "repo": "unsloth/gemma-4-26B-A4B-it-GGUF",
+  "remoto": "gemma-4-26B-A4B-it-UD-Q4_K_M.gguf",
+  "arquivo": "gemma-4-26B-A4B-it-UD-Q4_K_M.gguf",
+  "sha256": "f2c28b3dc4776931ac6f879e11f203dec637ea0f14267a86ec8f6165f63f293f",
+  "mmproj": {"remoto": "mmproj-F16.gguf", "arquivo": "gemma-4-26B-A4B-it-mmproj-F16.gguf", "sha256": "418a6d8723067cd712235facbbc5cba6c8fbbd413fc1292d2aace5a027d5a42f", "gb": 1.19},
+  "amostragem": {"top_k": 64, "top_p": 0.95},
+  "nota": "Auditor mais rigoroso (pegou acréscimo, número trocado e suavização). Não cabe em 12 GB de placa: mais lento.",
+  "licenca": "Apache 2.0",
+  "medido": true
+ },
+ {
+  "nome": "qwen3-vl:30b-a3b-instruct",
+  "gb": 18.56,
+  "papeis": ["juiz", "tradutor", "geral", "leitor"],
+  "repo": "unsloth/Qwen3-VL-30B-A3B-Instruct-GGUF",
+  "remoto": "Qwen3-VL-30B-A3B-Instruct-Q4_K_M.gguf",
+  "arquivo": "Qwen3-VL-30B-A3B-Instruct-Q4_K_M.gguf",
+  "sha256": "7ea0a652b4bda1c1911a93a79a7cd98b92011dfea078e87328285294b2b4ab44",
+  "mmproj": {"remoto": "mmproj-F16.gguf", "arquivo": "Qwen3-VL-30B-A3B-Instruct-mmproj-F16.gguf", "sha256": "9f248089357599a08a23af40cb5ce0030de14a2e119b7ef57f66cb339bd20819", "gb": 1.08},
+  "amostragem": {"top_k": 20, "top_p": 0.95},
+  "nota": "Juiz das disputas entre tradutor e auditor e quem refaz os blocos em que o tradutor rápido abrandou. Dupla de qualidade máxima com o Gemma 26B. Não cabe em 12 GB de placa: mais lento.",
+  "licenca": "Apache 2.0",
+  "medido": true
+ }
+]

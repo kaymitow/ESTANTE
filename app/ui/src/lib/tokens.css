@@ -1,0 +1,51 @@
+/* Tokens do sistema de design "arquivo noturno". Toda cor, tipo, espaço e movimento sai daqui. */
+:root {
+  /* cor */
+  --fundo: #121212;
+  --superficie: #1a1a1a;
+  --petroleo: #1d292c;
+  --papel: #f2efe8;
+  --apagado: #9a958b;
+  --linha: #2c2c2c;
+  --linha-forte: #4a4741;
+  --acento: #c82924;
+  --ok: #7fa98a;
+  --revisar: #d4a24a;
+
+  /* tipo */
+  /* cores e fontes abaixo são o padrão; quem usa troca em Configurações → Aparência (lib/aparencia.js põe por cima) */
+  --marca: 'Cinzel Variable', 'Cinzel', Georgia, serif;     /* a marca "Estante": esta não muda */
+  --display: 'Cinzel Variable', 'Cinzel', Georgia, serif;
+  --caixa-titulos: uppercase;
+  --sobre-acento: #ffffff;
+  --escala: 1;
+  --ui: 'Inter Variable', 'Segoe UI', system-ui, sans-serif;
+  --leitura: 'Literata Variable', Georgia, serif;
+  --mono: 'IBM Plex Mono', Consolas, monospace;
+  --t-rotulo: 0.6875rem;
+  --t-ui: 0.9375rem;
+  --t-leitura: 1.125rem;
+  --t-h3: 1.5rem;
+  --t-h2: clamp(2rem, 4vw, 3.25rem);
+  --t-h1: clamp(3rem, 8.5vw, 7.5rem);
+
+  /* espaço (escala de 4) */
+  --e1: 0.25rem; --e2: 0.5rem; --e3: 0.75rem; --e4: 1rem; --e6: 1.5rem; --e8: 2rem; --e12: 3rem; --e16: 4rem; --e24: 6rem;
+
+  /* forma e movimento */
+  --raio: 2px;
+  --curva: cubic-bezier(0.22, 1, 0.36, 1);
+  --rapido: 160ms;
+  --medio: 320ms;
+  --lento: 700ms;
+}
+
+/* Cinzel e as sem serifa não têm itálico: nos títulos o destaque fica só no recuo */
+:root[data-titulo-italico='nao'] :is(h1, h2, h3) :is(em, .recuo) { font-style: normal !important; }
+/* movimento desligado pelo usuário (Configurações → Aparência) */
+:root[data-movimento='nao'] { --rapido: 0ms; --medio: 0ms; --lento: 0ms; }
+:root[data-movimento='nao'] *, :root[data-movimento='nao'] *::before, :root[data-movimento='nao'] *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --rapido: 0ms; --medio: 0ms; --lento: 0ms; }
+}

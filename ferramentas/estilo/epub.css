@@ -1,0 +1,16 @@
+/* CSS dos EPUBs: sem fonte fixa, o leitor escolhe a fonte no Kindle/app. */
+body { font-family: serif; line-height: 1.45; margin: 0 5%; }
+p { margin: 0 0 .85em; text-align: justify; orphans: 2; widows: 2; }
+h1 { font-size: 1.5em; line-height: 1.25; margin: 1.2em 0 .9em; text-align: center; page-break-after: avoid; }
+h2 { font-size: 1.2em; margin: 1.3em 0 .7em; text-align: center; page-break-after: avoid; }
+h3 { font-size: 1.05em; margin: 1.1em 0 .6em; text-align: center; page-break-after: avoid; }
+.pnum { font-weight: bold; }
+blockquote { margin: 1em 8%; font-style: italic; }
+.assinatura { text-align: right; font-style: italic; margin: .5em 0 1.5em; }
+.fim { text-align: center; font-weight: bold; margin: 2em 0; }
+table { border-collapse: collapse; width: 100%; font-size: .9em; }
+td, th { padding: .15em .3em; vertical-align: top; }
+td:last-child, th:last-child { text-align: right; white-space: nowrap; }
+img { max-width: 100%; }
+.novapagina { display: none; }
+.anotacao { border-left: 3px solid #888; padding-left: .8em; margin: .8em 0 1.2em; font-size: .9em; font-family: sans-serif; text-align: left; }

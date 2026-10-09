@@ -1,0 +1,47 @@
+# ambiente e lixo
+.venv/
+__pycache__/
+*.pyc
+# regeneráveis ou baixáveis
+livros/*/saida/
+livros/*/ocr/*.pdf
+ferramentas/instaladores/
+ferramentas/epubcheck-*/
+ferramentas/tessdata/
+# arquivo morto: imagens/binários de conferência
+legado/**/*.png
+legado/**/*.jpg
+legado/**/*.exe
+legado/**/*.zip
+legado/**/*.hocr
+legado/**/render/
+legado/**/*.azw3
+.livro-anotado.md
+app/ui/node_modules/
+app/dados/
+
+# livros soltos, ainda não importados
+livros/*.pdf
+livros/*.epub
+docs/benchmark/*-teste.*
+# estado do processamento: muda a cada segundo
+livros/*/revisao/dados/pipeline.json
+# livros tirados da estante pelo app (recuperáveis à mão)
+livros/.lixeira/
+ferramentas/bin/
+ferramentas/classico/
+
+# programa desktop (Electron): dependências e a saída do empacotamento
+desktop/node_modules/
+desktop/dist/
+ferramentas/llama/
+desktop/cache/
+app/dados/motor.log
+app/dados/motor.pid
+docs/benchmark/
+legado/
+publicacao/
+.agents/
+desktop/pacote/
+desktop/requisitos*.txt
+*.log
