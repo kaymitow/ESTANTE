@@ -208,8 +208,9 @@
            ligado="Mantém a força do original nos trechos mais crus (acertou os 3 casos do livro de teste). Custa uma troca de modelo por livro."
            desligado="O bloco só recebe o alerta e vai para a sua revisão.">
       <Interruptor ligado={cfg.processo.refazer_abrandado} rotulo="Refazer trechos abrandados" onclick={() => salva('processo', { refazer_abrandado: !cfg.processo.refazer_abrandado })} />
+    </Opcao>
+    <Opcao nome="Aceitar tudo ao terminar, sem revisão" oque="Desligado por padrão. Ligado, o app aceita os blocos que sobraram ao fim do processamento (inclusive os que pediam atenção). Cada aceite fica no histórico, e a prova de fidelidade mostra o caminho de cada bloco.">
       <Interruptor ligado={cfg.processo.aceite_automatico} rotulo="Aceitar tudo ao terminar, sem revisão" onclick={() => salva('processo', { aceite_automatico: !cfg.processo.aceite_automatico })} />
-      <p class="o">Desligado por padrão. Ligado, o app aceita os blocos que sobraram ao fim do processamento (inclusive os que pediam atenção). Cada aceite fica no histórico, e a prova de fidelidade mostra o caminho de cada bloco.</p>
     </Opcao>
     <div class="linha"><a class="elo" href="#modelos">Escolher o modelo de cada papel →</a></div>
   </section>

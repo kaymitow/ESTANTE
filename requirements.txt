@@ -1,5 +1,7 @@
-pypdf
-pymupdf
-pillow
 fastapi
 uvicorn
+pymupdf
+pypdf
+pillow
+mobi        # ler MOBI/AZW3
+spylls      # ler o dicionário de português (grafia antiga)

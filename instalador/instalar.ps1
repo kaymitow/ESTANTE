@@ -177,7 +177,8 @@ function Termina {
     if (-not $Simular -and -not $Teste -and $temApp) {
         # o atalho e a abertura são o fim da instalação: o app fica pronto para abrir com dois cliques
         $atalho = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Estante.lnk'
-        $s = (New-Object -ComObject WScript.Shell).CreateShortcut($atalho); $s.TargetPath = Join-Path $PSScriptRoot 'iniciar-app.bat'; $s.WorkingDirectory = $raiz; $s.WindowStyle = 7; $s.Save()
+        $s = (New-Object -ComObject WScript.Shell).CreateShortcut($atalho); $s.TargetPath = Join-Path $PSScriptRoot 'iniciar-app.bat'; $s.WorkingDirectory = $raiz; $s.WindowStyle = 7
+        $s.IconLocation = Join-Path $raiz 'desktop\build\icon.ico'; $s.Description = 'Estante'; $s.Save()
     }
     if ($falhas.Count) {
         $fim.Text = 'Quase lá.'; $fim.ForeColor = $C.alerta
