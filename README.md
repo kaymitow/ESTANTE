@@ -52,7 +52,7 @@ Na RTX 3060, com a dupla padrão (tradução e auditoria), o fluxo completo levo
 
 ### Para usar
 
-1. Baixe o `Estante Setup 1.0.0.exe` na página de [Releases](https://github.com/kaymitow/Estante/releases/latest).
+1. Baixe o `Estante.Setup.1.0.0.exe` na página de [Releases](https://github.com/kaymitow/Estante/releases/latest).
 2. Execute o instalador. O Windows vai avisar que o editor não é verificado, porque o instalador não tem assinatura digital. Clique em **Mais informações** e depois em **Executar assim mesmo**.
 3. Abra o **Estante** pelo atalho da área de trabalho, vá em **Modelos** e baixe os modelos; os três padrões somam cerca de 13 GB.
 
