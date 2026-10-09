@@ -1,12 +1,13 @@
-﻿# Instalador do Estante, com janela. Instala o que faltar e deixa o app pronto para abrir.
-#   instalar.bat               abre a janela de instalação
-#   instalar.bat -Simular      abre a janela e percorre os passos sem instalar nem baixar nada
-#   instalar.ps1 -Teste a.png -Pagina 2      desenha uma página da janela num arquivo e sai (para conferir o visual)
+﻿# Instalador do Estante, com janela. Instala o que faltar, prepara o app e o abre.
+#   instalar.bat (na pasta principal)     abre a janela de instalação
+#   instalar.bat -Simular                 percorre os passos sem instalar nem baixar nada
+#   instalador\instalar.ps1 -Teste a.png -Pagina 2    desenha uma página da janela num arquivo e sai (para conferir o visual)
 # Usa o winget (já vem no Windows 10 e 11). Nada é enviado a lugar nenhum: só baixa os programas e os modelos dos sites oficiais.
 # Este arquivo é UTF-8 com marca (BOM); sem ela o PowerShell 5.1 troca os acentos. ferramentas/publicar.py confere isso.
 param([switch]$Simular, [string]$Teste = '', [int]$Pagina = 0, [switch]$Auto)      # -Auto (com -Simular): percorre tudo sozinho e fecha, para teste
 $ErrorActionPreference = 'Stop'
-Set-Location $PSScriptRoot
+$raiz = Split-Path -Parent $PSScriptRoot      # o instalador fica numa pasta; os caminhos do app são a partir da pasta principal
+Set-Location $raiz
 Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
 trap { [void][Windows.Forms.MessageBox]::Show("O instalador parou com um erro:`n`n" + $_.Exception.Message + "`n`nLinha " + $_.InvocationInfo.ScriptLineNumber, 'Estante'); exit 1 }
@@ -69,7 +70,8 @@ function Linha($pai, $y, $item, $titulo, $situacao, $corSituacao, $travada) {
 
 $form = New-Object Windows.Forms.Form
 $form.Text = 'Estante · instalação' + $(if ($Simular) { ' (simulação)' } else { '' }); $form.ClientSize = New-Object Drawing.Size(720, 470); $form.StartPosition = 'CenterScreen'
-if (Test-Path 'desktop\build\icon.ico') { $form.Icon = New-Object Drawing.Icon (Join-Path $PSScriptRoot 'desktop\build\icon.ico') }
+$icone = Join-Path $raiz 'desktop\build\icon.ico'
+if (Test-Path $icone) { $form.Icon = New-Object Drawing.Icon $icone }
 $form.FormBorderStyle = 'FixedDialog'; $form.MaximizeBox = $false; $form.BackColor = $C.fundo; $form.ForeColor = $C.texto; $form.Font = Fonte 10
 [void](Texto $form 'E S T A N T E' 28 22 400 30 (Fonte 15 'Regular' 'Georgia'))
 $passo = Texto $form '' 28 56 660 20 (Fonte 9) $C.apagado
@@ -82,9 +84,9 @@ function Pagina { $p = New-Object Windows.Forms.Panel; $p.SetBounds(28, 98, 664,
 $p0 = Pagina; $paginas += $p0
 [void](Texto $p0 'Livros antigos, traduzidos e reeditados no seu computador.' 0 6 660 30 (Fonte 14 'Regular' 'Georgia'))
 [void](Texto $p0 ("O Estante roda inteiro nesta máquina: sem conta, sem senha, sem enviar os seus livros a lugar nenhum.`n`n" +
-    "Este instalador põe no computador o que o app precisa e deixa você escolher os opcionais e os modelos de IA.`n`n" +
-    "Os programas são baixados dos sites oficiais pelo winget, do próprio Windows. Os modelos de IA são arquivos grandes: o próprio app os baixa na primeira abertura, na tela Modelos.") 0 50 650 170 (Fonte 10))
-[void](Texto $p0 ('Pasta do app:  ' + $PSScriptRoot) 0 250 660 20 (Fonte 9) $C.apagado)
+    "Este instalador põe no computador o que o app precisa, prepara o app e o abre no fim.`n`n" +
+    "Os programas são baixados dos sites oficiais pelo winget, do próprio Windows. Os modelos de IA são arquivos grandes: escolha na próxima tela quais quer agora; os outros o app baixa depois, na tela Modelos.") 0 50 650 170 (Fonte 10))
+[void](Texto $p0 ('Pasta do app:  ' + $raiz) 0 250 660 20 (Fonte 9) $C.apagado)
 if (-not $temWinget) { [void](Texto $p0 "O winget não foi encontrado. Instale o 'Instalador de Aplicativo' pela Microsoft Store e abra este instalador de novo." 0 274 660 30 (Fonte 9 'Bold') $C.alerta) }
 
 # 1 · programas
@@ -96,15 +98,15 @@ foreach ($p in $programas) {
     Linha $p1 $y $p $p.nome $sit $cor ([bool]($p.tem -or $p.necessario)); $y += 43
 }
 
-# 2 · modelos
+# 2 · modelos (quem já está instalado fica marcado e travado; os outros se escolhem)
 $p2 = Pagina; $paginas += $p2
 $y = 0
 foreach ($m in $modelos) {
     $sit = if ($m.tem) { 'já instalado' } else { ('{0:N1} GB' -f $m.gb) }
-    Linha $p2 $y $m $m.nome $sit $(if ($m.tem) { $C.ok } else { $C.apagado }) $true; $y += 48
+    Linha $p2 $y $m $m.nome $sit $(if ($m.tem) { $C.ok } else { $C.apagado }) ([bool]$m.tem); $y += 44
 }
-$total = Texto $p2 '' 0 206 660 20 (Fonte 10 'Bold')
-[void](Texto $p2 'Os modelos são baixados pelo próprio app, na tela Modelos. Sem eles o app abre e organiza os livros, mas não traduz.' 0 232 660 36 (Fonte 9) $C.apagado)
+$total = Texto $p2 '' 0 228 660 20 (Fonte 10 'Bold')
+[void](Texto $p2 'Os modelos são baixados pelo próprio app, na tela Modelos. Sem eles o app abre e organiza os livros, mas não traduz.' 0 254 660 36 (Fonte 9) $C.apagado)
 $unidade = Split-Path -Qualifier $pastaModelos
 $livre = [math]::Round((Get-PSDrive -Name $unidade.TrimEnd(':')).Free / 1GB, 1)
 function Soma {
@@ -115,28 +117,20 @@ function Soma {
 foreach ($m in $modelos) { $m.caixa.Add_CheckedChanged({ Soma }) }
 Soma
 
-# 3 · opções
+# 3 · instalando
 $p3 = Pagina; $paginas += $p3
-$opAtalho = @{ para = 'Um ícone "Estante" na área de trabalho, para abrir o app com dois cliques.'; marcado = $true }
-$opAbrir = @{ para = 'Ao terminar, o app abre no seu navegador.'; marcado = $true }
-Linha $p3 0 $opAtalho 'Criar atalho na área de trabalho' '' $C.apagado $false
-Linha $p3 52 $opAbrir 'Abrir o Estante ao terminar' '' $C.apagado $false
-$resumo = Texto $p3 '' 0 120 660 170 (Fonte 9) $C.apagado
-
-# 4 · instalando
-$p4 = Pagina; $paginas += $p4
-$agora = Texto $p4 '' 0 4 660 24 (Fonte 12 'Regular' 'Georgia')
-$barra = New-Object Windows.Forms.ProgressBar; $barra.SetBounds(0, 40, 660, 10); $barra.Style = 'Continuous'; $barra.Maximum = 1000; $p4.Controls.Add($barra)
-$detalhe = Texto $p4 '' 0 58 660 20 (Fonte 9) $C.apagado
+$agora = Texto $p3 '' 0 4 660 24 (Fonte 12 'Regular' 'Georgia')
+$barra = New-Object Windows.Forms.ProgressBar; $barra.SetBounds(0, 40, 660, 10); $barra.Style = 'Continuous'; $barra.Maximum = 1000; $p3.Controls.Add($barra)
+$detalhe = Texto $p3 '' 0 58 660 20 (Fonte 9) $C.apagado
 $log = New-Object Windows.Forms.TextBox; $log.Multiline = $true; $log.ReadOnly = $true; $log.ScrollBars = 'Vertical'; $log.SetBounds(0, 86, 660, 216)
-$log.BackColor = $C.sup; $log.ForeColor = $C.apagado; $log.BorderStyle = 'None'; $log.Font = Fonte 9 'Regular' 'Consolas'; $p4.Controls.Add($log)
+$log.BackColor = $C.sup; $log.ForeColor = $C.apagado; $log.BorderStyle = 'None'; $log.Font = Fonte 9 'Regular' 'Consolas'; $p3.Controls.Add($log)
 
-# 5 · pronto
-$p5 = Pagina; $paginas += $p5
-$fim = Texto $p5 '' 0 6 660 34 (Fonte 14 'Regular' 'Georgia')
-$fimDetalhe = Texto $p5 '' 0 52 660 230 (Fonte 10)
+# 4 · pronto
+$p4 = Pagina; $paginas += $p4
+$fim = Texto $p4 '' 0 6 660 34 (Fonte 14 'Regular' 'Georgia')
+$fimDetalhe = Texto $p4 '' 0 52 660 230 (Fonte 10)
 
-$TITULOS = @('Bem-vindo', 'Programas', 'Modelos de IA', 'Opções', 'Instalando', 'Pronto')
+$TITULOS = @('Bem-vindo', 'Programas', 'Modelos de IA', 'Instalando', 'Pronto')
 $bVoltar = Botao 'Voltar' 284; $bAvancar = Botao 'Avançar' 424 $true; $bFechar = Botao 'Cancelar' 564
 $atual = 0
 $passos = New-Object System.Collections.ArrayList
@@ -156,13 +150,9 @@ function Mostra($i) {
     $script:atual = $i
     for ($k = 0; $k -lt $paginas.Count; $k++) { $paginas[$k].Visible = ($k -eq $i) }
     $passo.Text = ('PASSO {0} DE {1}   ·   {2}' -f ($i + 1), $paginas.Count, $TITULOS[$i].ToUpper())
-    $bVoltar.Visible = ($i -ge 1 -and $i -le 3)
-    $bAvancar.Visible = ($i -le 3); $bAvancar.Text = $(if ($i -eq 3) { 'Instalar' } else { 'Avançar' }); $bAvancar.Enabled = $temWinget
-    $bFechar.Text = $(if ($i -eq 5) { 'Fechar' } else { 'Cancelar' }); $bFechar.Enabled = ($i -ne 4)
-    if ($i -eq 3) {
-        MontaPassos
-        $resumo.Text = $(if ($passos.Count) { "O que será feito:`n" + (($passos | ForEach-Object { '  ·  ' + $_.nome }) -join "`n") } else { 'Está tudo instalado. Nada a baixar.' })
-    }
+    $bVoltar.Visible = ($i -ge 1 -and $i -le 2)
+    $bAvancar.Visible = ($i -le 2); $bAvancar.Text = $(if ($i -eq 2) { 'Instalar' } else { 'Avançar' }); $bAvancar.Enabled = $temWinget
+    $bFechar.Text = $(if ($i -eq 4) { 'Fechar' } else { 'Cancelar' }); $bFechar.Enabled = ($i -ne 3)
 }
 
 # ---------- instalação: um passo por vez, em processo separado, para a janela não travar ----------
@@ -183,9 +173,11 @@ function Inicia($p) {
 }
 function Termina {
     $relogio.Stop()
-    if (-not $Simular -and -not $Teste -and $opAtalho.caixa.Checked -and (Test-Path .venv\Scripts\python.exe)) {
+    $temApp = (Test-Path .venv\Scripts\python.exe)
+    if (-not $Simular -and -not $Teste -and $temApp) {
+        # o atalho e a abertura são o fim da instalação: o app fica pronto para abrir com dois cliques
         $atalho = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Estante.lnk'
-        $s = (New-Object -ComObject WScript.Shell).CreateShortcut($atalho); $s.TargetPath = Join-Path $PSScriptRoot 'iniciar-app.bat'; $s.WorkingDirectory = $PSScriptRoot; $s.WindowStyle = 7; $s.Save()
+        $s = (New-Object -ComObject WScript.Shell).CreateShortcut($atalho); $s.TargetPath = Join-Path $PSScriptRoot 'iniciar-app.bat'; $s.WorkingDirectory = $raiz; $s.WindowStyle = 7; $s.Save()
     }
     if ($falhas.Count) {
         $fim.Text = 'Quase lá.'; $fim.ForeColor = $C.alerta
@@ -193,11 +185,11 @@ function Termina {
             "`n`nO mais comum é o Windows só enxergar um programa recém-instalado numa janela nova. Feche esta janela e abra o instalar.bat de novo: ele continua de onde parou e pula o que já está pronto."
     } else {
         $fim.Text = $(if ($Simular) { 'Simulação concluída: nada foi instalado.' } else { 'O Estante está pronto.' })
-        $fimDetalhe.Text = "Abra pelo atalho 'Estante' na área de trabalho ou pelo arquivo iniciar-app.bat.`n`nO app abre no seu navegador, mas roda só neste computador. Para começar, solte um PDF ou EPUB na pasta livros, ou use o botão Novo livro."
-        if (-not $Simular -and $opAbrir.caixa.Checked -and (Test-Path .venv\Scripts\python.exe)) { Start-Process (Join-Path $PSScriptRoot 'iniciar-app.bat') -WindowStyle Minimized }
+        $fimDetalhe.Text = "O app abre agora no seu navegador. Depois, use o atalho 'Estante' na área de trabalho.`n`nO app roda só neste computador. Para começar, solte um PDF ou EPUB na pasta livros, ou use o botão Novo livro."
+        if (-not $Simular -and $temApp) { Start-Process (Join-Path $PSScriptRoot 'iniciar-app.bat') -WindowStyle Minimized }
     }
-    Mostra 5
-    if ($Auto) { Write-Host $log.Text; Write-Host ('FIM: ' + $fim.Text); $script:atual = 5; $form.Close() }
+    Mostra 4
+    if ($Auto) { Write-Host $log.Text; Write-Host ('FIM: ' + $fim.Text); $script:atual = 4; $form.Close() }
 }
 $relogio.Add_Tick({
     if ($null -eq $script:proc) {
@@ -207,7 +199,7 @@ $relogio.Add_Tick({
     $txt = ''
     try { $fs = [IO.File]::Open($script:saida, 'Open', 'Read', 'ReadWrite'); $r = New-Object IO.StreamReader($fs); $txt = $r.ReadToEnd(); $r.Close() } catch {}
     $ultima = ($txt -split "[`r`n]+" | Where-Object { $_.Trim() } | Select-Object -Last 1)
-    if ($ultima) { $limpa = ($ultima -replace '[^\x20-\x7E -ɏ]', ' ').Trim(); $detalhe.Text = $limpa.Substring(0, [math]::Min(110, $limpa.Length)) }
+    if ($ultima) { $limpa = ($ultima -replace '[^\x20-\x7E -ɏ]', ' ').Trim(); $detalhe.Text = $limpa.Substring(0, [math]::Min(110, $limpa.Length)) }
     $pct = 0; if ($ultima -match '(\d{1,3})%') { $pct = [math]::Min(100, [int]$Matches[1]) }
     $barra.Value = [math]::Min(1000, [int](1000 * ($script:indice + $pct / 100) / [math]::Max(1, $passos.Count)))
     if ($script:proc.HasExited) {
@@ -221,17 +213,21 @@ $relogio.Add_Tick({
 $bVoltar.Add_Click({ Mostra ($script:atual - 1) })
 $bFechar.Add_Click({ $form.Close() })
 $bAvancar.Add_Click({
-    if ($script:atual -lt 3) { Mostra ($script:atual + 1); return }
-    Mostra 4; $barra.Value = 0; $script:indice = 0; $falhas.Clear(); $log.Clear(); $relogio.Start()
+    if ($script:atual -lt 2) { Mostra ($script:atual + 1); return }
+    # botão Instalar: monta a lista do que falta e começa
+    MontaPassos
+    Mostra 3; $barra.Value = 0; $script:indice = 0; $falhas.Clear(); $log.Clear()
+    if ($passos.Count) { Diz ('O que será feito: ' + (($passos | ForEach-Object { $_.nome }) -join ' · ')) } else { Diz 'Está tudo instalado. Nada a baixar.' }
+    $relogio.Start()
 })
-$form.Add_FormClosing({ if ($script:atual -eq 4) { $_.Cancel = $true } })
+$form.Add_FormClosing({ if ($script:atual -eq 3) { $_.Cancel = $true } })
 
 Mostra $Pagina
 if ($Teste) {      # desenha a página pedida num arquivo, fora da tela, e sai
     $form.StartPosition = 'Manual'; $form.Location = New-Object Drawing.Point(-3000, -3000); $form.ShowInTaskbar = $false; $form.Show(); $form.Refresh()
     $bmp = New-Object Drawing.Bitmap($form.Width, $form.Height); $form.DrawToBitmap($bmp, (New-Object Drawing.Rectangle(0, 0, $form.Width, $form.Height))); $bmp.Save($Teste); $form.Close()
-    Write-Host "pagina $Pagina desenhada; passos previstos: $($passos.Count)"; exit 0
+    MontaPassos; Write-Host "pagina $Pagina desenhada; passos previstos: $($passos.Count)"; exit 0
 }
-if ($Auto -and $Simular) { $form.Add_Shown({ 1..4 | ForEach-Object { $bAvancar.PerformClick() } }) }
+if ($Auto -and $Simular) { $form.Add_Shown({ 1..3 | ForEach-Object { $bAvancar.PerformClick() } }) }
 try { [void]$form.ShowDialog() }
 catch { [void][Windows.Forms.MessageBox]::Show("O instalador parou com um erro:`n`n" + $_.Exception.Message, 'Estante') }

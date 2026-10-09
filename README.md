@@ -63,8 +63,7 @@ Requisitos: Windows, Python 3.12, Git e Node.js 20 ou mais novo.
 ```bash
 git clone https://github.com/kaymitow/Estante.git
 cd Estante
-instalar.bat        # instala o que faltar (Python, Git, Pandoc) e cria o ambiente do app
-iniciar-app.bat     # abre o app em http://127.0.0.1:8765
+instalar.bat        # instala o que faltar, prepara o app e o abre (também cria o atalho na área de trabalho)
 ```
 
 Para compilar a interface: `cd app/ui`, depois `npm install` e `npx vite build`.
