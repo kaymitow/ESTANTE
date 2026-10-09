@@ -180,6 +180,16 @@ if (!app.requestSingleInstanceLock()) {
       app.quit();
       return;
     }
+    // o app grava na própria pasta (configurações, fila, atalho da biblioteca): instalado em pasta protegida ele abriria sem funcionar
+    try {
+      fs.accessSync(RAIZ, fs.constants.W_OK);
+      fs.mkdirSync(path.join(RAIZ, 'app', 'dados'), { recursive: true });
+      fs.writeFileSync(path.join(RAIZ, 'app', 'dados', '.grava'), '');
+    } catch {
+      dialog.showErrorBox('Estante', `O Estante não consegue gravar na pasta onde foi instalado:\n${path.dirname(RAIZ)}\n\nDesinstale e instale de novo numa pasta sua, por exemplo D:\\Estante (e não em "Arquivos de Programas").`);
+      app.quit();
+      return;
+    }
     liga_biblioteca();
     sobe_servidor(porta);
     try {

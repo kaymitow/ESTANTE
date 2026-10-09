@@ -53,7 +53,7 @@ Na RTX 3060, com a dupla padrão (tradução e auditoria), o fluxo completo levo
 ### Para usar
 
 1. Baixe o `Estante.Setup.1.0.0.exe` na página de [Releases](https://github.com/kaymitow/Estante/releases/latest).
-2. Execute o instalador. O Windows vai avisar que o editor não é verificado, porque o instalador não tem assinatura digital. Clique em **Mais informações** e depois em **Executar assim mesmo**.
+2. Execute o instalador. O Windows vai avisar que o editor não é verificado, porque o instalador não tem assinatura digital. Clique em **Mais informações** e depois em **Executar assim mesmo**. Você pode escolher a pasta (em outro disco, por exemplo); só não use "Arquivos de Programas", onde o app não consegue gravar.
 3. Abra o **Estante** pelo atalho da área de trabalho, vá em **Modelos** e baixe os modelos; os três padrões somam cerca de 13 GB.
 
 O instalador já traz tudo de que o app precisa (Python, Pandoc, Tectonic e o motor de IA). Não é preciso instalar mais nada. O primeiro PDF que você gerar baixa uns 50 MB de pacotes de tipografia.
