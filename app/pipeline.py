@@ -22,7 +22,6 @@ import estilo
 import fila
 
 RAIZ = Path(__file__).resolve().parent.parent
-LEITOR_PADRAO = 'qwen3-vl:8b-instruct'      # lê a imagem da página; no teste teve a mesma nota do modelo grande e é ~2x mais rápido
 ETAPAS = ['diagnostico', 'inventario', 'extracao', 'estrutura', 'transformacao', 'rascunho']
 _threads: dict[str, threading.Thread] = {}
 _conta_rascunho: dict[str, tuple] = {}      # livro -> (data do arquivo, contagem): a tela consulta o estado várias vezes por segundo

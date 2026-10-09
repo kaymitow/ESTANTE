@@ -69,6 +69,8 @@ function sobe_servidor(porta) {
       // os modelos (vários GB, baixados na primeira abertura) ficam junto dos livros, em %APPDATA%\Estante, e não na pasta do programa.
       // ESTANTE_MODELOS, se já estiver definida, manda (para apontar para outro disco)
       ESTANTE_MODELOS: process.env.ESTANTE_MODELOS || path.join(app.getPath('userData'), 'modelos'),
+      // PDF: sem MiKTeX, o Tectonic baixa do repositório dele os pacotes de tipografia que faltam (uns 50 MB, no primeiro PDF)
+      ESTANTE_TECTONIC_REDE: '1',
       PYTHONIOENCODING: 'utf-8',
       PYTHONUTF8: '1',
       // o Pandoc e o Tectonic ficam em ferramentas/bin: o app os encontra pelo PATH, como se estivessem instalados
@@ -120,6 +122,7 @@ function cria_janela(porta) {
 ipcMain.handle('reiniciar', () => {
   // o app reabre sozinho: relança o próprio programa e encerra este processo
   encerrando = true;
+  para_servidor();      // app.exit não passa pelo before-quit: sem isto o servidor e o motor antigos ficavam no ar
   app.relaunch();
   app.exit(0);
 });

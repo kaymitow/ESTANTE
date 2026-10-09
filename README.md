@@ -52,21 +52,23 @@ Na RTX 3060, com a dupla padrão (tradução e auditoria), o fluxo completo levo
 
 ### Para usar
 
-1. Nesta página, clique em **Code** e depois em **Download ZIP**. Extraia a pasta onde quiser (ela é o programa: não apague depois).
-2. Abra a pasta e dê dois cliques em `instalar.bat`. O instalador mostra o que falta no computador (Python, Git, Pandoc), instala pelo winget do próprio Windows, baixa o motor de IA (llama.cpp) e cria o atalho **Estante** na área de trabalho.
-3. O app abre numa janela própria. Vá em **Modelos** e baixe os modelos; os três padrões somam cerca de 13 GB.
+1. Baixe o `Estante Setup 1.0.0.exe` na página de [Releases](https://github.com/kaymitow/Estante/releases/latest).
+2. Execute o instalador. O Windows vai avisar que o editor não é verificado, porque o instalador não tem assinatura digital. Clique em **Mais informações** e depois em **Executar assim mesmo**.
+3. Abra o **Estante** pelo atalho da área de trabalho, vá em **Modelos** e baixe os modelos; os três padrões somam cerca de 13 GB.
 
-Se o instalador disser que algum passo não terminou, feche e abra o `instalar.bat` de novo: ele continua de onde parou.
+O instalador já traz tudo de que o app precisa (Python, Pandoc, Tectonic e o motor de IA). Não é preciso instalar mais nada. O primeiro PDF que você gerar baixa uns 50 MB de pacotes de tipografia.
 
 ### Para desenvolver (a partir do código)
 
-Requisitos: Windows, Python 3.12, Git e Node.js 20 ou mais novo.
+Este caminho é opcional, para quem quer mexer no programa. Requisitos: Windows 10 ou 11. O `instalar.bat` instala o que faltar (Python 3.12, Git, Pandoc) pelo winget e baixa o motor de IA; para compilar a interface ou gerar o instalador é preciso também o Node.js 20 ou mais novo.
 
 ```bash
 git clone https://github.com/kaymitow/Estante.git
 cd Estante
-instalar.bat        # instala o que faltar, baixa o motor de IA, cria o atalho e abre o app
+instalar.bat        # instala o que faltar, baixa o motor de IA e abre o app
 ```
+
+Depois, o app abre por `instalador\iniciar-app.bat` (sem janela de terminal).
 
 Para compilar a interface: `cd app/ui`, depois `npm install` e `npx vite build`.
 

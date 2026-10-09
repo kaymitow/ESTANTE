@@ -6,7 +6,7 @@ Papéis (gravados em app/dados/config.json):
   tradutor  propõe as traduções            geral    propõe nas outras tarefas (português antigo, limpeza)
   auditor   confere a fidelidade           leitor / leitor2   leem a página escaneada, um sem ver a leitura do outro
 """
-import hashlib, re, threading, urllib.request
+import hashlib, re, threading, urllib.error, urllib.request
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
@@ -52,14 +52,18 @@ def _baixa_arquivo(repo, remoto, destino, sha, st, rotulo):
     part = destino.with_name(destino.name + '.part')
     ja = part.stat().st_size if part.exists() else 0
     req = urllib.request.Request(f'https://huggingface.co/{repo}/resolve/main/{remoto}', headers={'Range': f'bytes={ja}-'} if ja else {})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        if ja and r.status != 206:      # o servidor ignorou o pedido de retomada: começa de novo
-            ja = 0
-        st.update(estado=f'baixando o {rotulo}', feito=ja, total=ja + int(r.headers.get('Content-Length') or 0))
-        with open(part, 'ab' if ja else 'wb') as f:
-            while bloco := r.read(1 << 20):
-                f.write(bloco)
-                st['feito'] += len(bloco)
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            if ja and r.status != 206:      # o servidor ignorou o pedido de retomada: começa de novo
+                ja = 0
+            st.update(estado=f'baixando o {rotulo}', feito=ja, total=ja + int(r.headers.get('Content-Length') or 0))
+            with open(part, 'ab' if ja else 'wb') as f:
+                while bloco := r.read(1 << 20):
+                    f.write(bloco)
+                    st['feito'] += len(bloco)
+    except urllib.error.HTTPError as ex:
+        if ex.code != 416:      # 416 = o pedaço já está inteiro (o app fechou antes de conferir): segue para a conferência
+            raise
     st['estado'] = f'conferindo o {rotulo}'
     h = hashlib.sha256()
     with open(part, 'rb') as f:

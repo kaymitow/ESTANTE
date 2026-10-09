@@ -86,7 +86,7 @@ def main():
     (PACOTE / 'livros').mkdir()      # a biblioteca começa vazia; o app a preenche
 
     fer = PACOTE / 'ferramentas'
-    for nome in ('construir.py', 'bilingue.py', 'anotar.py', 'buscar.py'):
+    for nome in ('construir.py', 'bilingue.py', 'anotar.py', 'buscar.py', 'verificar.py', 'checar_glossario.py', 'colacionar.py'):
         shutil.copy2(RAIZ / 'ferramentas' / nome, fer / nome) if (fer.mkdir(exist_ok=True) or True) else None
     copia(RAIZ / 'ferramentas' / 'filtros', fer / 'filtros')
     copia(RAIZ / 'ferramentas' / 'estilo', fer / 'estilo')

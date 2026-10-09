@@ -1,4 +1,4 @@
-﻿# Instalador do Estante, com janela. Instala o que faltar, prepara o app e o abre.
+﻿# Instalador do Estante a partir do código (quem só quer usar baixa o Estante Setup na página de Releases). Instala o que faltar, prepara o app e o abre.
 #   instalar.bat (na pasta principal)     abre a janela de instalação
 #   instalar.bat -Simular                 percorre os passos sem instalar nem baixar nada
 #   instalador\instalar.ps1 -Teste a.png -Pagina 2    desenha uma página da janela num arquivo e sai (para conferir o visual)
@@ -142,6 +142,8 @@ function MontaPassos {
         arg = "install --id $($p.id) -e --accept-source-agreements --accept-package-agreements --disable-interactivity" }) } }
     if (-not (Test-Path .venv\Scripts\python.exe)) {
         [void]$passos.Add(@{ nome = 'Criando o ambiente do app'; exe = 'python'; arg = '-m venv .venv' })
+    }
+    if (-not (Test-Path .venv\Scripts\uvicorn.exe)) {      # à parte do ambiente: se a rede caiu no meio, a próxima execução instala o que faltou
         [void]$passos.Add(@{ nome = 'Instalando as bibliotecas do app'; exe = '.venv\Scripts\python.exe'; arg = '-m pip install -q --disable-pip-version-check -r requirements.txt' })
     }
     # o motor de IA (llama.cpp) é baixado do GitHub oficial pelo próprio app, conferindo o hash; com placa NVIDIA vem também a versão de CUDA (uns 700 MB)
@@ -179,19 +181,13 @@ function Inicia($p) {
 function Termina {
     $relogio.Stop()
     $temApp = (Test-Path .venv\Scripts\python.exe)
-    if (-not $Simular -and -not $Teste -and $temApp) {
-        # o atalho e a abertura são o fim da instalação: o app fica pronto para abrir com dois cliques
-        $atalho = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Estante.lnk'
-        $s = (New-Object -ComObject WScript.Shell).CreateShortcut($atalho); $s.TargetPath = Join-Path $raiz '.venv\Scripts\pythonw.exe'; $s.Arguments = 'appbrir.py'; $s.WorkingDirectory = $raiz      # direto no pythonw: sem janela de terminal
-        $s.IconLocation = Join-Path $raiz 'desktop\build\icon.ico'; $s.Description = 'Estante'; $s.Save()
-    }
     if ($falhas.Count) {
         $fim.Text = 'Quase lá.'; $fim.ForeColor = $C.alerta
         $fimDetalhe.Text = "Estes passos não terminaram:`n" + (($falhas | ForEach-Object { '  ·  ' + $_ }) -join "`n") +
             "`n`nO mais comum é o Windows só enxergar um programa recém-instalado numa janela nova. Feche esta janela e abra o instalar.bat de novo: ele continua de onde parou e pula o que já está pronto."
     } else {
         $fim.Text = $(if ($Simular) { 'Simulação concluída: nada foi instalado.' } else { 'O Estante está pronto.' })
-        $fimDetalhe.Text = "O app abre agora, numa janela própria. Depois, use o atalho 'Estante' na área de trabalho.`n`nO app roda só neste computador. Para começar, solte um PDF ou EPUB na pasta livros, ou use o botão Novo livro."
+        $fimDetalhe.Text = "O app abre agora, numa janela própria. Depois, abra por instalador\iniciar-app.bat.`n`nO app roda só neste computador. Para começar, solte um PDF ou EPUB na pasta livros, ou use o botão Novo livro."
         if (-not $Simular -and $temApp) { Start-Process (Join-Path $PSScriptRoot 'iniciar-app.bat') -WindowStyle Minimized }
     }
     Mostra 4

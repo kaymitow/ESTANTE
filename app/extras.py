@@ -18,6 +18,8 @@ LIVROS = RAIZ / 'livros'
 def repo():
     """Onde fica o histórico da biblioteca. Se o repositório do programa ignora livros/ (cópia pública) ou não existe,
     a biblioteca ganha um repositório git próprio, só local, em livros/. Senão (projeto antigo), vale o da raiz."""
+    if not shutil.which('git'):      # sem Git instalado o app funciona igual, só não guarda o histórico das mudanças
+        return RAIZ
     if not (LIVROS / '.git').exists():
         ignorada = subprocess.run(['git', 'check-ignore', '-q', 'livros/x'], cwd=RAIZ, capture_output=True).returncode
         if ignorada != 1:                 # 0 = ignorada; 128 = a raiz nem é um repositório
@@ -27,6 +29,8 @@ def repo():
 
 
 def git(*args):
+    if not shutil.which('git'):
+        return subprocess.CompletedProcess(args, 1, '', 'o Git não está instalado: a mudança foi gravada, mas sem histórico')
     return subprocess.run(['git', *args], cwd=repo(), capture_output=True, text=True, encoding='utf-8', errors='replace')
 
 

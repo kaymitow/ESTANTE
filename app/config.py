@@ -39,6 +39,8 @@ def le():
 
 def grava(parcial):
     c = _funde(le(), parcial)
+    if 'modelos_proprios' in parcial:      # esta lista é trocada inteira: a fusão só acrescenta, e remover um modelo não tirava o registro
+        c['modelos_proprios'] = dict(parcial['modelos_proprios'])
     ARQ.parent.mkdir(exist_ok=True)
     ARQ.write_text(json.dumps(c, ensure_ascii=False, indent=1), encoding='utf-8')
     return c
