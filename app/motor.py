@@ -149,14 +149,14 @@ def sobe(nome):
         cmd = [str(_binario()), '-m', str(arq), '--host', '127.0.0.1', '--port', str(porta), '-c', str(CTX * PARALELO), '-np', str(PARALELO),
                '--jinja', '--no-ui']
         if m.get('conversa'):      # o formato de conversa que o modelo foi medido com (quando o do GGUF não serve)
-            cmd += ['--chat-template-file', str(AQUI / 'conversas' / m['conversa'])]
+            cmd += ['--chat-template-file', m['conversa']]      # nome solto, com a pasta dele como pasta de trabalho: o llama.cpp não abre este arquivo se o caminho tiver acento
         if mm:
             cmd += ['--mmproj', str(mm)]
         LOG.parent.mkdir(parents=True, exist_ok=True)
         with open(LOG, 'a', encoding='utf-8') as log:
             log.write(f'\n== {nome}\n')
             log.flush()
-            proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT, creationflags=SEM_JANELA)
+            proc = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT, creationflags=SEM_JANELA, cwd=AQUI / 'conversas')
         PID.write_text(str(proc.pid), encoding='utf-8')
         _atual.update(nome=nome, proc=proc, porta=porta)
         try:

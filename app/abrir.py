@@ -57,6 +57,7 @@ def main():
         webbrowser.open(URL)
         return
     # perfil próprio: sem ele o Edge entrega a janela ao navegador já aberto e este processo sai na hora, sem dar para saber quando a tela fechou
+    ctypes.windll.user32.AllowSetForegroundWindow(-1)      # deixa a janela do Edge vir para a frente (quem clicou no atalho foi este processo)
     janela = subprocess.Popen([exe, f'--app={URL}', f'--user-data-dir={AQUI / "dados" / "janela"}', '--no-first-run', '--no-default-browser-check'])
     janela.wait()
     if servidor:      # só quem subiu o servidor o encerra (a segunda abertura só traz outra janela); /T leva junto o motor de IA

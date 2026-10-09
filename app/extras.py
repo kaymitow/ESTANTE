@@ -31,10 +31,13 @@ def git(*args):
 
 
 def commit(msg, *paths):
-    git('add', *[str(p) for p in paths])
+    for c in paths:      # um por vez: um caminho ignorado ou que não existe faria o git recusar todos
+        git('add', str(c))
     # sem nome configurado no git da máquina, o commit falharia: usa um nome local genérico
     quem = [] if git('config', 'user.name').stdout.strip() else ['-c', 'user.name=Estante', '-c', 'user.email=estante@localhost']
-    return git(*quem, 'commit', '-q', '-m', msg, '--', *[str(p) for p in paths])      # só estes caminhos: o que mais estiver preparado no git não entra junto
+    # só estes caminhos (o que mais estiver preparado no git não entra junto), e só os que mudaram: um caminho que o git não conhece derrubaria o commit todo
+    alvo = [c for c in map(str, paths) if git('diff', '--cached', '--quiet', '--', c).returncode == 1] or [str(c) for c in paths]
+    return git(*quem, 'commit', '-q', '-m', msg, '--', *alvo)
 
 
 def slug(s):
