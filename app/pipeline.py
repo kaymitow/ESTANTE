@@ -852,6 +852,13 @@ def retomar_todos():
 
 
 if __name__ == '__main__':      # autoteste: python app/pipeline.py
+    # bloco grande demais para o contexto: repartido sem perder nada (nem as aspas de fechamento), e os passos que não cabem são pulados
+    longo = ' '.join(f'He said "Stop number {i}." Then (quietly) he left!' for i in range(700))
+    assert all(' '.join(ps) == longo and max(map(len, ps)) <= lim for lim in (500, 4096) for ps in [duplo._partes(longo, lim)])
+    assert duplo._partes('x' * 2500, 1000) == ['x' * 1000, 'x' * 1000, 'x' * 500]
+    assert (duplo._teto('x' * 100), duplo._teto('x' * 1000), duplo._teto('x' * 10000)) == (100, 2000, 6000)
+    assert duplo.auditar('m', 'traduzir', longo, longo)[0] is False and duplo.revisar('traduzir', longo, 'versão', 'crítica', a='m') == 'versão'
+    assert duplo.julgar('m', 'traduzir', longo, longo, ['a', 'b']) == [(True, duplo.GRANDE, None)] * 2
     t = 'Veja a [discussão](http://x.org/a_(b)?q=1) e a nota[^3]; depois *isto* e ![capa](img/c.png).'
     m, pecas = mascara(t)
     assert m == 'Veja a <a1>discussão</a1> e a nota<n3/>; depois <i4>isto</i4> e !<a2>capa</a2>.', m

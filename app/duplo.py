@@ -501,9 +501,45 @@ CONCEDE = re.compile(r'(tradução (está )?corret|não há erro|não é (um )?e
 MORALISMO = re.compile(r'ofensiv|pejorativ\w* e vulgar|politicamente|inapropriad|(inadequad|inaceit[áa]ve)\w*[^.]{0,40}(modern|context|socia|p[úu]blic)|n[ãa]o [ée] (comum|aceit[áa]vel) (em|no) portugu', re.I)
 
 
+GRANDE = 'bloco grande demais para o modelo ler inteiro de uma vez'      # o que o usuário lê quando um passo foi pulado por não caber no contexto
+
+
+def _cabe(resposta, *textos):
+    """O pedido (textos) mais a resposta (em tokens) cabem no contexto do motor? Sem motor para contar, vale a conta por cima:
+    3 caracteres por token (português e inglês dão perto de 4) e 300 de folga para o formato de conversa."""
+    # ponytail: estimativa por caracteres; se um dia errar para menos, o motor recusa o pedido e o trabalho pausa com o erro dele. Contar de verdade = /tokenize do llama-server
+    return sum(len(t) for t in textos) / 3 + resposta + 300 <= motor.CTX
+
+
+def _teto(fonte):
+    """Limite de tokens da resposta que traduz ou refaz um bloco. Linha curta (título, data): justo, porque foi aí que um modelo inventou um
+    parágrafo inteiro no piloto. Bloco longo: cresce com a fonte (0,6 token por caractere, umas 1,6× o tamanho dela). Com o limite fixo de 2000,
+    parágrafo de mais de uns 6 mil caracteres saía cortado no meio; assim a resposta só bate no limite se já estiver bem maior que a fonte,
+    e isso a checagem de tamanho acusa."""
+    return max(2000, int(len(fonte) * 0.6)) if len(fonte) > 300 else max(80, len(fonte))
+
+
+def _partes(fonte, limite):
+    """Reparte um bloco que não cabe no contexto em pedaços de até `limite` caracteres, em fim de frase (sem pontuação, num espaço)."""
+    cortes = [m.end() for m in FRASE.finditer(fonte)]      # corta DEPOIS do espaço entre as frases: FRASE.split comeria as aspas de fechamento
+    partes, atual = [], ''
+    for frase in (fonte[i:j] for i, j in zip([0] + cortes, cortes + [len(fonte)])):
+        while len(frase) > limite:
+            corte = frase.rfind(' ', 0, limite) + 1 or limite
+            partes += [atual, frase[:corte]] if atual else [frase[:corte]]
+            atual, frase = '', frase[corte:]
+        if len(atual) + len(frase) > limite:
+            partes.append(atual)
+            atual = ''
+        atual += frase
+    return [p.strip() for p in partes + [atual] if p.strip()]
+
+
 def auditar(b, tarefa, fonte, saida):
     """Devolve (fiel?, problemas). Só erro de fidelidade reprova; notas de estilo vêm na lista com o prefixo "estilo: " e não reprovam."""
     pedido = f'FONTE:\n{fonte}\n\nRESULTADO:\n{saida}'
+    if b != FORA and not _cabe(1000, AUDITORIA, pedido):
+        return False, [f'{GRANDE}: o auditor não conferiu']
     txt = chat(b, [{'role': 'system', 'content': AUDITORIA.format(tarefa=tarefa)}, {'role': 'user', 'content': pedido}], num_predict=1000,
                vivo={'papel': 'conferindo', 'fonte': fonte, 'resultado': saida})
     m = re.search(r'\{.*\}', txt, re.S)
@@ -558,6 +594,8 @@ def julgar(juiz, tarefa, fonte, versao, objecoes, contexto='', certeza=False):
             return 'alerta automático: o auditor não concluiu a conferência; compare a VERSÃO inteira com a FONTE'
         return f'trecho contestado: «{m[1][:300]}»' if m else 'alerta automático: ' + o[:300]
     lista = '\n'.join(f'{k}. {item(o)}' for k, o in enumerate(objecoes, 1))
+    if juiz != FORA and not _cabe(150 * len(objecoes) + 80, JUIZ, contexto, fonte, versao, lista):
+        return [(True, GRANDE, None)] * len(objecoes)      # sem voto, a objeção fica de pé e o bloco vai para o usuário
     pedacos = [] if certeza else None
     txt = chat(juiz, [{'role': 'system', 'content': JUIZ + ('\n\n' + contexto if contexto else '')},
                       {'role': 'user', 'content': f'FONTE:\n{fonte}\n\nVERSÃO:\n{versao}\n\nITENS:\n{lista}'}], num_predict=150 * len(objecoes) + 80,
@@ -611,11 +649,13 @@ def sentenciar(juiz, tarefa, fonte, versao, problemas, contexto='', votos=None):
     # quem conserta é o próprio juiz: medido no piloto, os modelos pequenos não corrigem o que lhes é apontado
     contexto = _com_guia(tarefa, fonte, contexto)      # a correção do juiz também abrandava (27 das 58 correções recusadas num livro inteiro)
     pontos = '\n'.join(f'- {p[:300]} ({m})' for p, m in de_pe)
+    if juiz != FORA and not _cabe(_teto(fonte), _sistema(tarefa, contexto), fonte, versao, pontos):
+        return r      # a correção não caberia no contexto e sairia cortada: o bloco vai para o usuário com as objeções
     r['sentenca'] = ajusta(fonte, chat(juiz, [{'role': 'system', 'content': _sistema(tarefa, contexto)}, {'role': 'user', 'content': fonte}, {'role': 'assistant', 'content': versao},
                                               {'role': 'user', 'content': 'Um juiz decidiu que estes pontos da sua versão estão errados:\n' + pontos +
                                                '\nReescreva a versão INTEIRA, do começo ao fim, em português, corrigindo só esses pontos e copiando o resto igual. '
                                                'Não deixe palavra no idioma da fonte. Responda SOMENTE com o texto final.'}],
-                                       num_predict=2000 if len(fonte) > 300 else max(80, len(fonte)), vivo={'papel': 'sentenciando', 'fonte': fonte, 'critica': pontos, 'resultado': versao}))
+                                       num_predict=_teto(fonte), vivo={'papel': 'sentenciando', 'fonte': fonte, 'critica': pontos, 'resultado': versao}))
     tipo = lambda p: p[:14]      # noqa: E731
     liberados = {tipo(p) for p, (procede, _, _) in zip(problemas, votos) if not procede}      # só o que o juiz julgou improcedente pode continuar na correção
     # a correção só é recusada pelo que ela PIORA: alerta que a versão anterior já tinha (uma frase a mais ou a menos num parágrafo longo, por exemplo)
@@ -701,20 +741,30 @@ def propor(tarefa, fonte, a=A_PADRAO, contexto=''):
     if a == classico.NOME:                 # rascunho rápido: motor clássico, sem modelo grande
         return ajusta(fonte, classico.traduz(fonte))
     contexto = _com_guia(tarefa, fonte, contexto)
-    teto = 2000 if len(fonte) > 300 else max(80, len(fonte))
-    pede = lambda m: chat(m, [{'role': 'system', 'content': _sistema(tarefa, contexto)}, {'role': 'user', 'content': fonte}], num_predict=teto,   # noqa: E731
-                          vivo={'papel': 'propondo', 'fonte': fonte})
-    return ajusta(fonte, _sem_censura(tarefa, pede(a), pede) if a == FORA else pede(a))
+    sistema = _sistema(tarefa, contexto)
+    pede = lambda m, f=fonte: chat(m, [{'role': 'system', 'content': sistema}, {'role': 'user', 'content': f}], num_predict=_teto(f),   # noqa: E731
+                                   vivo={'papel': 'propondo', 'fonte': f})
+    if a == FORA:
+        return ajusta(fonte, _sem_censura(tarefa, pede(a), pede))
+    if _cabe(_teto(fonte), sistema, fonte):
+        return ajusta(fonte, pede(a))
+    # parágrafo que não cabe no contexto com a tradução dele: vai em pedaços, cortados em fim de frase, e volta emendado
+    # ponytail: marca de link ou itálico que atravessa o corte fica desencontrada nos pedaços; a checagem de marcas acusa e o bloco vai para o usuário
+    livre = motor.CTX - 300 - len(sistema) / 3      # tokens para o pedaço e a tradução dele, descontado o pedido (com o glossário)
+    limite = max(500, int(min(livre / 0.94, (livre - 2000) * 3)))      # o maior pedaço que passa em _cabe; glossário que toma o contexto todo o motor recusa
+    return ajusta(fonte, ' '.join(pede(a, parte) for parte in _partes(fonte, limite)))
 
 
 def revisar(tarefa, fonte, saida, critica, a=A_PADRAO, contexto='', papel='corrigindo'):
     """Passo 3: o modelo A refaz corrigindo só o que foi apontado."""
     contexto = _com_guia(tarefa, fonte, contexto)
+    if a != FORA and not _cabe(_teto(fonte), _sistema(tarefa, contexto), fonte, saida, critica):
+        return saida      # a correção não caberia no contexto e sairia cortada: fica a versão que havia, e as objeções seguem adiante
     return ajusta(fonte, chat(a, [{'role': 'system', 'content': _sistema(tarefa, contexto)}, {'role': 'user', 'content': fonte},
                     {'role': 'assistant', 'content': saida},
                     {'role': 'user', 'content': f'Um revisor apontou: {critica}. Refaça corrigindo SÓ isso, mantendo a fidelidade total à fonte. '
                                                 'Responda SOMENTE com o texto final.'}],
-                             num_predict=2000 if len(fonte) > 300 else max(80, len(fonte)), vivo={'papel': papel, 'fonte': fonte, 'critica': critica, 'resultado': saida}))
+                             num_predict=_teto(fonte), vivo={'papel': papel, 'fonte': fonte, 'critica': critica, 'resultado': saida}))
 
 
 def processa(tarefa, fonte='', a=A_PADRAO, b=B_PADRAO, imagem_b64=None):
